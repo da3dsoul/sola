@@ -42,10 +42,15 @@ const {
       });
 
       const result = await knex("files").select("status").where("path", file);
-      if (result[0].status === "NEW") {
-        await knex("files").where("path", file).update({ status: "HASHING" });
-        await hash(SOLA_FILE_PATH, SOLA_HASH_PATH, file);
-        await knex("files").where("path", file).update({ status: "HASHED" });
+      if (result[0].status === "NEW" || result[0].status === "HASHING") {
+          await knex("files").where("path", file).update({status: "HASHING"});
+          let hash_result = false;
+          try {
+               hash_result = await hash(SOLA_FILE_PATH, SOLA_HASH_PATH, file);
+          } catch (e) {
+              console.log('Failed to hash file. Setting as ERRORED and cleaning up')
+          }
+        await knex("files").where("path", file).update({ status: (hash_result ? "HASHED" : "ERRORED") });
       } else {
         console.log(`File status is [${result[0].status}] , skip`);
       }

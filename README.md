@@ -1,3 +1,6 @@
+# Please Note That This Readme is Out of Date.
+It will be updated later 
+
 # sola
 
 [![Build Status](https://travis-ci.org/soruly/sola.svg?branch=master)](https://travis-ci.org/soruly/sola)

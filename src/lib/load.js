@@ -15,7 +15,8 @@ const load = (SOLA_HASH_PATH, relativePath, SOLA_SOLR_URL, SOLA_SOLR_CORE) =>
 
     console.log("Parsing xml");
     const hashList = new xmldoc.XmlDocument(data).children
-      .filter((child) => child.name === "doc")
+      .filter((child) => child.name === "doc");
+    const hashMapped = hashList
       .map((doc) => {
         const fields = doc.children.filter((child) => child.name === "field");
         return {
@@ -25,11 +26,11 @@ const load = (SOLA_HASH_PATH, relativePath, SOLA_SOLR_URL, SOLA_SOLR_CORE) =>
           cl_hi: fields.filter((field) => field.attr.name === "cl_hi")[0].val,
           cl_ha: fields.filter((field) => field.attr.name === "cl_ha")[0].val,
         };
-      })
-      .sort((a, b) => a.time - b.time);
+      });
+    const sortedHashList = hashMapped.sort((a, b) => a.time - b.time);
 
     const dedupedHashList = [];
-    hashList.forEach((currentFrame) => {
+    sortedHashList.forEach((currentFrame) => {
       if (
         !dedupedHashList
           .slice(-24) // get last 24 frames

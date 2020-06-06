@@ -1,5 +1,19 @@
 require("dotenv").config();
 const child_process = require("child_process");
+
+const exts = [ 
+  "MKV",
+  "AVI",
+  "MP4",
+  "MOV",
+  "OGM",
+  "WMV",
+  "MPG",
+  "MPEG",
+  "MK3D",
+  "M4V"
+];
+
 const amqp = require("amqplib");
 
 const {
@@ -44,9 +58,21 @@ const {
 
   console.log(`Scanning ${SOLA_FILE_PATH}`);
   const concurrency = 50;
+  let extentions = `-iname "*.`;
+  for (let i = 0; i < exts.length; i++) {
+    const element = exts[i];
+    if (i == 0)
+    {
+      extentions += element + `"`;
+    } else
+    {
+      extentions += ` -o -iname "*.${element}"`;
+    }
+  }
   const args = process.argv[2] ? `-mmin -${process.argv[2]}` : "";
+  // exec is a single string exactly as written. It needs to be escaped
   const fileList = child_process
-    .execSync(`find -L ${SOLA_FILE_PATH} -type f -name "*.mp4" ${args}`, {
+    .execSync(`find -L "${SOLA_FILE_PATH}" -type f \\( ${extentions} \\) ${args}`, {
       maxBuffer: 1024 * 1024 * 100,
     })
     .toString()
@@ -55,7 +81,7 @@ const {
 
   console.log(`Found ${fileList.length} files, updating database...`);
   await fileList
-    .map((filePath) => filePath.replace(SOLA_FILE_PATH, ""))
+    .map((filePath) => filePath.replace(SOLA_FILE_PATH.replace(/"/g, ""), ""))
     .reduce((list, term, index) => {
       const i = Math.floor(index / concurrency);
       const j = index % concurrency;
