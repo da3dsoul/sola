@@ -1,3 +1,4 @@
+// This is a helper script to test the scanning function
 const child_process = require("child_process");
 const SOLA_FILE_PATH = `"/media/da3dsoul/Golias/Media/Video/TV Shows/Animated/Anime"`;
 const exts = [ 
